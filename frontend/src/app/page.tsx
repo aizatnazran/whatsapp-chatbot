@@ -3,13 +3,24 @@
 import { useState, useEffect } from 'react';
 import { User, Appointment } from '../types';
 import { getUsers, getAppointments } from '../utils/api';
-import UserCard from '../components/UserCard';
-import AppointmentCard from '../components/AppointmentCard';
+import {
+  Container,
+  Box,
+  Tabs,
+  Tab,
+  Typography,
+} from '@mui/material';
+import UsersTable from '../components/UsersTable';
+import AppointmentsList from '../components/AppointmentsList';
 
 export default function Home() {
+  const [value, setValue] = useState(0);
   const [users, setUsers] = useState<User[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [activeTab, setActiveTab] = useState<'users' | 'appointments'>('users');
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,46 +39,60 @@ export default function Home() {
     fetchData();
   }, []);
 
+  const updateAppointmentStatus = async (id: number, status: string) => {
+    try {
+      const updatedAppointments = await getAppointments();
+      setAppointments(updatedAppointments);
+    } catch (error) {
+      console.error('Error updating appointment status:', error);
+    }
+  };
+
   return (
-    <main className="min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-8">WhatsApp Appointment System</h1>
-      
-      <div className="mb-6">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'users'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Users ({users.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('appointments')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'appointments'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Appointments ({appointments.length})
-            </button>
-          </nav>
-        </div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+        WhatsApp Appointment System
+      </Typography>
+
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+          <Tab 
+            label={`Users (${users.length})`} 
+            id="tab-0"
+            aria-controls="tabpanel-0"
+          />
+          <Tab 
+            label={`Appointments (${appointments.length})`} 
+            id="tab-1"
+            aria-controls="tabpanel-1"
+          />
+        </Tabs>
+      </Box>
+
+      <div
+        role="tabpanel"
+        hidden={value !== 0}
+        id="tabpanel-0"
+        aria-labelledby="tab-0"
+      >
+        {value === 0 && <UsersTable users={users} />}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {activeTab === 'users' ? (
-          users.map((user) => <UserCard key={user.id} user={user} />)
-        ) : (
-          appointments.map((appointment) => (
-            <AppointmentCard key={appointment.id} appointment={appointment} />
-          ))
+      <div
+        role="tabpanel"
+        hidden={value !== 1}
+        id="tabpanel-1"
+        aria-labelledby="tab-1"
+      >
+        {value === 1 && (
+          <AppointmentsList 
+            appointments={appointments} 
+            setAppointments={setAppointments}
+            updateAppointmentStatus={updateAppointmentStatus}
+            getAppointments={getAppointments}
+          />
         )}
       </div>
-    </main>
+    </Container>
   );
 }
