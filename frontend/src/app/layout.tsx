@@ -8,7 +8,7 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "WhatsApp Appointment System",
+  title: "Appointment System",
   description: "Manage appointments and users through WhatsApp",
 };
 
