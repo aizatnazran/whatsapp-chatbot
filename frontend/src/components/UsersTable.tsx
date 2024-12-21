@@ -58,21 +58,16 @@ const UsersTable: React.FC<{ users: User[]; loading?: boolean }> = ({ users, loa
   };
 
   const formatDateTime = (date: string, time: string) => {
-    console.log('Raw date:', date);
-    console.log('Raw time:', time);
 
-    // Sanitize the inputs
-    const sanitizedDate = date.split('T')[0]; // Extract date
-    const sanitizedTime = time.split('T')[1]?.split('.')[0]; // Extract time
+    const sanitizedDate = date.split('T')[0]; 
+    const sanitizedTime = time.split('T')[1]?.split('.')[0]; 
 
     if (!sanitizedDate || !sanitizedTime) {
       console.error('Invalid date or time:', { sanitizedDate, sanitizedTime });
       return 'Invalid Date';
     }
 
-    // Combine sanitized date and time
     const combinedDateTime = `${sanitizedDate}T${sanitizedTime}`;
-    console.log('Sanitized Combined DateTime:', combinedDateTime);
 
     // Parse and format
     const parsedDate = new Date(combinedDateTime);

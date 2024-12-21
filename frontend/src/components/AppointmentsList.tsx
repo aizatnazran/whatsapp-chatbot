@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -41,39 +41,70 @@ const statusColors = {
 const AppointmentsList: React.FC<{
   appointments: Appointment[];
   setAppointments: (appointments: Appointment[]) => void;
-  updateAppointmentStatus: (id: number, status: 'scheduled' | 'completed' | 'cancelled') => Promise<void>;
-  getAppointments: () => Promise<Appointment[]>;
   loading?: boolean;
-}> = ({ appointments, setAppointments, updateAppointmentStatus, getAppointments, loading = false }) => {
+}> = ({ appointments, setAppointments, loading = false }) => {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<string>('');
 
-  const handleStatusChange = async () => {
+  const getAppointments = async () => {
     try {
-      await updateAppointmentStatus(selectedAppointment?.id!, newStatus as 'scheduled' | 'completed' | 'cancelled');
-      // Refresh appointments list
-      const updatedAppointments = await getAppointments();
-      setAppointments(updatedAppointments);
-      setDialogOpen(false);
+      const response = await fetch('http://localhost:8000/api/appointments');
+      const data = await response.json();
+      setAppointments(data);
     } catch (error) {
-      console.error('Error updating appointment status:', error);
+      console.error('Error fetching appointments:', error);
+    }
+  };
+
+  useEffect(() => {
+    getAppointments();
+  }, []);
+
+  const handleStatusChange = async () => {
+
+    if (!selectedAppointment || !newStatus) {
+      console.error('No appointment or status selected');
+      return;
+    }
+
+    try {
+
+      const response = await fetch(`http://localhost:8000/api/appointments/${selectedAppointment.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const responseData = await response.text();
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}, body: ${responseData}`);
+      }
+
+      setDialogOpen(false);
+      
+      // Refresh the appointments list
+      await getAppointments();
+    } catch (error) {
+      console.error('Error in handleStatusChange:', error);
     }
   };
 
   const formatDateTime = (date: string, time: string) => {
-    // Ensure we only pass valid date and time formats
-    const sanitizedDate = date.split('T')[0]; // Extract date
-    const sanitizedTime = time.split('T')[1]?.split('.')[0]; // Extract time
+    const sanitizedDate = date.split('T')[0]; 
+    const sanitizedTime = time.split('T')[1]?.split('.')[0]; 
 
     if (!sanitizedDate || !sanitizedTime) {
       console.error('Invalid date or time:', { sanitizedDate, sanitizedTime });
       return 'Invalid Date';
     }
 
-    // Combine sanitized date and time
     const combinedDateTime = `${sanitizedDate}T${sanitizedTime}`;
 
     // Parse and format

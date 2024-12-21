@@ -12,7 +12,6 @@ import {
 import UsersTable from './components/UsersTable';
 import AppointmentsList from './components/AppointmentsList';
 
-// Create a theme with blue and white colors
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -34,23 +33,6 @@ function App() {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
-  };
-
-  const updateAppointmentStatus = async (id: number, status: 'scheduled' | 'completed' | 'cancelled') => {
-    try {
-      const response = await fetch(`http://localhost:8000/api/appointments/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      });
-      if (response.ok) {
-        getAppointments(); // Refresh appointments after update
-      }
-    } catch (error) {
-      console.error('Error updating appointment:', error);
-    }
   };
 
   const getAppointments = async () => {
@@ -115,13 +97,13 @@ function App() {
           id="tabpanel-1"
           aria-labelledby="tab-1"
         >
-          {value === 1 && <AppointmentsList 
-            appointments={appointments} 
-            setAppointments={setAppointments}
-            updateAppointmentStatus={updateAppointmentStatus}
-            getAppointments={getAppointments}
-            loading={loading}
-          />}
+          {value === 1 && (
+            <AppointmentsList 
+              appointments={appointments} 
+              setAppointments={setAppointments}
+              loading={loading}
+            />
+          )}
         </div>
       </Container>
     </ThemeProvider>
