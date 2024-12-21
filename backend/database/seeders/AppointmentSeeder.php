@@ -10,12 +10,11 @@ class AppointmentSeeder extends Seeder
 {
     public function run(): void
     {
-        // Base date for appointments (starting from tomorrow)
         $baseDate = Carbon::tomorrow();
         
         $appointments = [];
         
-        // Create appointments for each user (assuming user IDs 1-5 from UserSeeder)
+        // Create appointments for each user 
         for ($userId = 1; $userId <= 5; $userId++) {
             // Create 3 appointments per user
             for ($i = 0; $i < 3; $i++) {
