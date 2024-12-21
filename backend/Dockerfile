@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip
+    unzip \
+    nginx
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -31,9 +32,15 @@ RUN composer install
 # Generate application key
 RUN php artisan key:generate
 
+# Configure Nginx
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-EXPOSE 8000
+EXPOSE 80
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Start Nginx & PHP-FPM
+COPY docker/start.sh /usr/local/bin/start
+RUN chmod +x /usr/local/bin/start
+CMD ["/usr/local/bin/start"]

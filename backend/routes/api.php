@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\AppointmentController;
 
-// No routes needed in api.php as we're using webhook.php for WhatsApp endpoints
+// WhatsApp Webhook routes
+Route::post('/webhook', [ChatbotController::class, 'handleWebhook']);
+Route::get('/webhook', [ChatbotController::class, 'verifyWebhook']);
 
 // API routes for the frontend
 Route::get('/appointments', [AppointmentController::class, 'index']);
