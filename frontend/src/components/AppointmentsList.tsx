@@ -19,6 +19,7 @@ import {
   Skeleton,
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
+import { API_ROUTES } from '../config/api';
 
 interface Appointment {
   id: number;
@@ -51,7 +52,7 @@ const AppointmentsList: React.FC<{
 
   const getAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/appointments');
+      const response = await fetch(API_ROUTES.appointments);
       const data = await response.json();
       setAppointments(data);
     } catch (error) {
@@ -72,7 +73,7 @@ const AppointmentsList: React.FC<{
 
     try {
 
-      const response = await fetch(`http://localhost:8000/api/appointments/${selectedAppointment.id}/status`, {
+      const response = await fetch(`${API_ROUTES.appointments}/${selectedAppointment.id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

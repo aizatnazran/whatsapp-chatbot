@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import UsersTable from './components/UsersTable';
 import AppointmentsList from './components/AppointmentsList';
+import { API_ROUTES } from './config/api';
 
 const theme = createTheme({
   palette: {
@@ -38,7 +39,7 @@ function App() {
   const getAppointments = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/api/appointments');
+      const response = await fetch(API_ROUTES.appointments);
       const data = await response.json();
       setAppointments(data);
     } catch (error) {
@@ -50,7 +51,7 @@ function App() {
 
   useEffect(() => {
     // Fetch users data
-    fetch('http://localhost:8000/api/users')
+    fetch(API_ROUTES.users)
       .then(response => response.json())
       .then(data => setUsers(data))
       .catch(error => console.error('Error fetching users:', error));
