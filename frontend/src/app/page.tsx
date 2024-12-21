@@ -17,6 +17,7 @@ export default function Home() {
   const [value, setValue] = useState(0);
   const [users, setUsers] = useState<User[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -24,6 +25,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [usersData, appointmentsData] = await Promise.all([
           getUsers(),
@@ -33,6 +35,8 @@ export default function Home() {
         setAppointments(appointmentsData);
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -51,7 +55,7 @@ export default function Home() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
-        WhatsApp Appointment System
+        Appointment System
       </Typography>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
@@ -75,7 +79,7 @@ export default function Home() {
         id="tabpanel-0"
         aria-labelledby="tab-0"
       >
-        {value === 0 && <UsersTable users={users} />}
+        {value === 0 && <UsersTable users={users} loading={loading} />}
       </div>
 
       <div
@@ -90,6 +94,7 @@ export default function Home() {
             setAppointments={setAppointments}
             updateAppointmentStatus={updateAppointmentStatus}
             getAppointments={getAppointments}
+            loading={loading}
           />
         )}
       </div>

@@ -13,9 +13,13 @@ import {
   IconButton,
   Typography,
   Box,
-  Chip
+  Chip,
+  TextField,
+  InputAdornment,
+  Skeleton,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import { Search as SearchIcon } from '@mui/icons-material';
 
 interface Appointment {
   id: number;
@@ -35,12 +39,13 @@ interface User {
 const statusColors = {
   scheduled: '#2196f3',
   completed: '#4caf50',
-  cancelled: '#f44336'
+  cancelled: '#f44336',
 };
 
-const UsersTable: React.FC<{ users: User[] }> = ({ users }) => {
+const UsersTable: React.FC<{ users: User[]; loading?: boolean }> = ({ users, loading = false }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   const handleAppointmentsClick = (user: User) => {
     setSelectedUser(user);
@@ -53,67 +58,142 @@ const UsersTable: React.FC<{ users: User[] }> = ({ users }) => {
   };
 
   const formatDateTime = (date: string, time: string) => {
-    const formattedDate = new Date(date).toLocaleDateString('en-US', {
+    console.log('Raw date:', date);
+    console.log('Raw time:', time);
+
+    // Sanitize the inputs
+    const sanitizedDate = date.split('T')[0]; // Extract date
+    const sanitizedTime = time.split('T')[1]?.split('.')[0]; // Extract time
+
+    if (!sanitizedDate || !sanitizedTime) {
+      console.error('Invalid date or time:', { sanitizedDate, sanitizedTime });
+      return 'Invalid Date';
+    }
+
+    // Combine sanitized date and time
+    const combinedDateTime = `${sanitizedDate}T${sanitizedTime}`;
+    console.log('Sanitized Combined DateTime:', combinedDateTime);
+
+    // Parse and format
+    const parsedDate = new Date(combinedDateTime);
+    if (isNaN(parsedDate.getTime())) {
+      console.error('Invalid Date Detected:', combinedDateTime);
+      return 'Invalid Date';
+    }
+
+    const formattedDate = parsedDate.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
-    const formattedTime = new Date(`2000-01-01 ${time}`).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    });
-    return `${formattedDate} at ${formattedTime}`;
+
+    const hours = parsedDate.getHours();
+    const minutes = parsedDate.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hour12 = hours % 12 || 12;
+
+    return `${formattedDate} at ${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
   };
+
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase()) ||
+      user.phone_number.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <>
+      <Box sx={{ mb: 3 }}>
+        <TextField
+          fullWidth
+          placeholder="Search users by name, email, or phone number..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+
       <TableContainer component={Paper} sx={{ boxShadow: 2, borderRadius: 2 }}>
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell><Typography variant="subtitle1" fontWeight="bold">Name</Typography></TableCell>
-              <TableCell><Typography variant="subtitle1" fontWeight="bold">Email</Typography></TableCell>
-              <TableCell><Typography variant="subtitle1" fontWeight="bold">Phone Number</Typography></TableCell>
-              <TableCell><Typography variant="subtitle1" fontWeight="bold">Appointments</Typography></TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Name
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Email
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Phone Number
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Appointments
+                </Typography>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id} hover>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.phone_number}</TableCell>
-                <TableCell>
-                  <Box
-                    onClick={() => handleAppointmentsClick(user)}
-                    sx={{
-                      cursor: 'pointer',
-                      color: '#2196f3',
-                      '&:hover': { textDecoration: 'underline' }
-                    }}
-                  >
-                    {user.appointments.length} appointments
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
+            {loading ? (
+              [...Array(5)].map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Skeleton variant="text" width={150} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={200} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={120} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={100} />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              filteredUsers.map((user) => (
+                <TableRow key={user.id} hover>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.phone_number}</TableCell>
+                  <TableCell>
+                    <Box
+                      onClick={() => handleAppointmentsClick(user)}
+                      sx={{
+                        cursor: 'pointer',
+                        color: '#2196f3',
+                        '&:hover': { textDecoration: 'underline' },
+                      }}
+                    >
+                      {user.appointments.length} appointments
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
-      <Dialog
-        open={dialogOpen}
-        onClose={handleClose}
-        maxWidth="md"
-        fullWidth
-      >
+      <Dialog open={dialogOpen} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">
-              {selectedUser?.name}'s Appointments
-            </Typography>
+            <Typography variant="h6">{selectedUser?.name}'s Appointments</Typography>
             <IconButton onClick={handleClose} size="small">
               <CloseIcon />
             </IconButton>
@@ -128,7 +208,7 @@ const UsersTable: React.FC<{ users: User[] }> = ({ users }) => {
                   p: 2,
                   borderRadius: 2,
                   boxShadow: 1,
-                  border: '1px solid #e0e0e0'
+                  border: '1px solid #e0e0e0',
                 }}
               >
                 <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -139,7 +219,7 @@ const UsersTable: React.FC<{ users: User[] }> = ({ users }) => {
                     label={appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
                     sx={{
                       backgroundColor: statusColors[appointment.status],
-                      color: 'white'
+                      color: 'white',
                     }}
                   />
                 </Box>
