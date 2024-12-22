@@ -36,23 +36,18 @@ COPY . .
 # Generate optimized autoload files
 RUN composer dump-autoload --optimize
 
-# Generate application key
+# Set up Laravel
+RUN php artisan storage:link
+RUN cp .env.example .env
 RUN php artisan key:generate
 
 # Configure Nginx
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Configure Supervisor
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 # Set permissions
 RUN chown -R www-data:www-data /var/www
-RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
-
-# Create log directory and set permissions
-RUN mkdir -p /var/www/storage/logs
-RUN chmod -R 775 /var/www/storage/logs
-RUN chown -R www-data:www-data /var/www/storage/logs
+RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache /var/www/public
+RUN chmod -R 755 /var/www/vendor
 
 EXPOSE 80
 
