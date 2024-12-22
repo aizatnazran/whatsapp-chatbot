@@ -24,11 +24,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
+# Copy composer files first
+COPY composer.json composer.lock ./
+
+# Install dependencies
+RUN composer install --no-scripts --no-autoloader
+
 # Copy existing application directory
 COPY . .
 
-# Install dependencies
-RUN composer install
+# Generate optimized autoload files
+RUN composer dump-autoload --optimize
 
 # Generate application key
 RUN php artisan key:generate
@@ -40,7 +46,7 @@ COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Create log directory and set permissions

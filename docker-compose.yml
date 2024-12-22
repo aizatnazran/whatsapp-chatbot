@@ -16,6 +16,8 @@ services:
       - "8081:80"
     volumes:
       - ./backend:/var/www
+      - /var/www/vendor
+      - /var/www/storage
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
