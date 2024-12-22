@@ -24,34 +24,37 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy composer files first
-COPY composer.json composer.lock ./
-
-# Install dependencies
-RUN composer install --no-scripts --no-autoloader
-
-# Copy existing application directory
+# Copy existing application directory contents
 COPY . .
 
-# Generate optimized autoload files
-RUN composer dump-autoload --optimize
+# Install dependencies
+RUN composer install
 
 # Set up Laravel
-RUN php artisan storage:link
-RUN cp .env.example .env
+COPY .env.example .env
 RUN php artisan key:generate
 
 # Configure Nginx
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache /var/www/public
-RUN chmod -R 755 /var/www/vendor
+
+# Create storage directory structure
+RUN mkdir -p /var/www/storage/framework/sessions \
+    && mkdir -p /var/www/storage/framework/views \
+    && mkdir -p /var/www/storage/framework/cache \
+    && mkdir -p /var/www/storage/logs \
+    && chown -R www-data:www-data /var/www/storage
+
+# Debugging: List contents to verify
+RUN ls -la /var/www/public
 
 EXPOSE 80
 
-# Start Supervisor (which will manage PHP-FPM and Nginx)
+# Copy and set up start script
 COPY docker/start.sh /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 CMD ["/usr/local/bin/start"]
