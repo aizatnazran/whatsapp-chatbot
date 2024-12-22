@@ -18,3 +18,16 @@ export interface Appointment {
   appointment_time: string;
   status: 'scheduled' | 'completed' | 'cancelled';
 }
+
+export interface AppointmentsListProps {
+  appointments: Appointment[];
+  setAppointments: (appointments: Appointment[]) => void;
+  updateAppointmentStatus: () => Promise<void>;
+  getAppointments: () => Promise<Appointment[]>;
+  loading?: boolean;
+}
+
+export interface UsersTableProps {
+  users: User[];
+  loading?: boolean;
+}

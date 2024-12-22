@@ -12,6 +12,7 @@ import {
 import UsersTable from './components/UsersTable';
 import AppointmentsList from './components/AppointmentsList';
 import { API_ROUTES } from './config/api';
+import { User, Appointment } from './types';
 
 const theme = createTheme({
   palette: {
@@ -27,9 +28,9 @@ const theme = createTheme({
 });
 
 function App() {
-  const [value, setValue] = useState(0);
-  const [users, setUsers] = useState([]);
-  const [appointments, setAppointments] = useState([]);
+  const [value, setValue] = useState<number>(0);
+  const [users, setUsers] = useState<User[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -42,10 +43,21 @@ function App() {
       const response = await fetch(API_ROUTES.appointments);
       const data = await response.json();
       setAppointments(data);
+      return data;
     } catch (error) {
       console.error('Error fetching appointments:', error);
+      return [];
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateAppointmentStatus = async () => {
+    try {
+      const updatedAppointments = await getAppointments();
+      setAppointments(updatedAppointments);
+    } catch (error) {
+      console.error('Error updating appointment status:', error);
     }
   };
 
@@ -102,6 +114,8 @@ function App() {
             <AppointmentsList 
               appointments={appointments} 
               setAppointments={setAppointments}
+              updateAppointmentStatus={updateAppointmentStatus}
+              getAppointments={getAppointments}
               loading={loading}
             />
           )}

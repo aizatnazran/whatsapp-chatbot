@@ -20,21 +20,7 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { Search as SearchIcon } from '@mui/icons-material';
-
-interface Appointment {
-  id: number;
-  appointment_date: string;
-  appointment_time: string;
-  status: 'scheduled' | 'completed' | 'cancelled';
-}
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  phone_number: string;
-  appointments: Appointment[];
-}
+import { User, UsersTableProps } from '../types';
 
 const statusColors = {
   scheduled: '#2196f3',
@@ -42,7 +28,7 @@ const statusColors = {
   cancelled: '#f44336',
 };
 
-const UsersTable: React.FC<{ users: User[]; loading?: boolean }> = ({ users, loading = false }) => {
+const UsersTable: React.FC<UsersTableProps> = ({ users, loading = false }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState('');

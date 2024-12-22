@@ -17,21 +17,11 @@ import {
   Button,
   InputAdornment,
   Skeleton,
+  SelectChangeEvent,
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { API_ROUTES } from '../config/api';
-
-interface Appointment {
-  id: number;
-  user: {
-    name: string;
-    email: string;
-    phone_number: string;
-  };
-  appointment_date: string;
-  appointment_time: string;
-  status: 'scheduled' | 'completed' | 'cancelled';
-}
+import { Appointment, AppointmentsListProps } from '../types';
 
 const statusColors = {
   scheduled: '#2196f3',
@@ -39,40 +29,30 @@ const statusColors = {
   cancelled: '#f44336',
 };
 
-const AppointmentsList: React.FC<{
-  appointments: Appointment[];
-  setAppointments: (appointments: Appointment[]) => void;
-  loading?: boolean;
-}> = ({ appointments, setAppointments, loading = false }) => {
+const AppointmentsList: React.FC<AppointmentsListProps> = ({
+  appointments,
+  setAppointments,
+  updateAppointmentStatus,
+  getAppointments,
+  loading = false,
+}) => {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<string>('');
 
-  const getAppointments = async () => {
-    try {
-      const response = await fetch(API_ROUTES.appointments);
-      const data = await response.json();
-      setAppointments(data);
-    } catch (error) {
-      console.error('Error fetching appointments:', error);
-    }
-  };
-
   useEffect(() => {
     getAppointments();
-  }, [getAppointments]);
+  }, []); // Remove getAppointments from dependency array since it's defined in the component
 
-  const handleStatusChange = async () {
-
+  const handleStatusChange = async () => {
     if (!selectedAppointment || !newStatus) {
       console.error('No appointment or status selected');
       return;
     }
 
     try {
-
       const response = await fetch(`${API_ROUTES.appointments}/${selectedAppointment.id}/status`, {
         method: 'PUT',
         headers: {
@@ -90,8 +70,8 @@ const AppointmentsList: React.FC<{
 
       setDialogOpen(false);
       
-      // Refresh the appointments list
-      await getAppointments();
+      // Call the parent's updateAppointmentStatus function
+      await updateAppointmentStatus();
     } catch (error) {
       console.error('Error in handleStatusChange:', error);
     }
@@ -236,7 +216,7 @@ const AppointmentsList: React.FC<{
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleStatusChange} variant="contained">
+          <Button onClick={() => handleStatusChange()} variant="contained">
             Update
           </Button>
         </DialogActions>
