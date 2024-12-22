@@ -16,3 +16,8 @@ services:
       - "8081:80"
     volumes:
       - ./backend:/var/www
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - LOG_CHANNEL=stderr
+      - LOG_LEVEL=debug

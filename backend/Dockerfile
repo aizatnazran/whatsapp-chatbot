@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    nginx
+    nginx \
+    supervisor
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -35,12 +36,21 @@ RUN php artisan key:generate
 # Configure Nginx
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
+# Configure Supervisor
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Create log directory and set permissions
+RUN mkdir -p /var/www/storage/logs
+RUN chmod -R 775 /var/www/storage/logs
+RUN chown -R www-data:www-data /var/www/storage/logs
 
 EXPOSE 80
 
-# Start Nginx & PHP-FPM
+# Start Supervisor (which will manage PHP-FPM and Nginx)
 COPY docker/start.sh /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 CMD ["/usr/local/bin/start"]
