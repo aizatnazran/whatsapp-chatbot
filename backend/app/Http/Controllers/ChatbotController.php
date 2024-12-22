@@ -139,8 +139,12 @@ class ChatbotController extends Controller
                             } else {
                                 $response = "Your appointments:\n\n";
                                 foreach ($appointments as $apt) {
-                                    $response .= "Date: " . $apt->appointment_date . "\n";
-                                    $response .= "Time: " . date('h:i A', strtotime($apt->appointment_time)) . "\n\n";
+                                    $dayOfWeek = \Carbon\Carbon::parse($apt->appointment_date)->format('l'); // Get day
+                                        $formattedDate = \Carbon\Carbon::parse($apt->appointment_date)->format('Y-m-d'); // Format without time
+                                        $formattedTime = date('h:i A', strtotime($apt->appointment_time)); // Format time
+                                        
+                                        $response .= "Date: {$dayOfWeek}, {$formattedDate}\n";
+                                        $response .= "Time: {$formattedTime}\n\n";
                                 }
                                 $response .= "Type 1 to create a new appointment\nType 2 to view appointments again";
                             }
@@ -173,7 +177,7 @@ class ChatbotController extends Controller
                         $response .= "1. Name: {$data['name']}\n";
                         $response .= "2. Email: {$data['email']}\n";
                         $response .= "3. Phone: {$data['phone']}\n";
-                        $response .= "4. Date: {$data['date']}\n";
+                        $response .= "4. Date: {$dayOfWeek}, {$data['date']}\n";
                         $response .= "5. Time: {$data['time']}\n\n";
                         $response .= "Is this correct? Type 'Yes' to confirm, or type the number (1-5) to modify that information.";
                     } else {
@@ -204,7 +208,7 @@ class ChatbotController extends Controller
                         $response .= "1. Name: {$data['name']}\n";
                         $response .= "2. Email: {$data['email']}\n";
                         $response .= "3. Phone: {$data['phone']}\n";
-                        $response .= "4. Date: {$data['date']}\n";
+                        $response .= "4. Date: {$dayOfWeek}, {$data['date']}\n";
                         $response .= "5. Time: {$data['time']}\n\n";
                         $response .= "Is this correct? Type 'Yes' to confirm, or type the number (1-5) to modify that information.";
                     } else {
@@ -235,7 +239,7 @@ class ChatbotController extends Controller
                         $response .= "1. Name: {$data['name']}\n";
                         $response .= "2. Email: {$data['email']}\n";
                         $response .= "3. Phone: {$data['phone']}\n";
-                        $response .= "4. Date: {$data['date']}\n";
+                        $response .= "4. Date: {$dayOfWeek}, {$data['date']}\n";
                         $response .= "5. Time: {$data['time']}\n\n";
                         $response .= "Is this correct? Type 'Yes' to confirm, or type the number (1-5) to modify that information.";
                     } else {
