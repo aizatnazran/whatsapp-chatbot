@@ -4,7 +4,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     env_file:
       - ./frontend/.env
     depends_on:
@@ -13,6 +13,6 @@ services:
   backend:
     build: ./backend
     ports:
-      - "80:80"
+      - "8081:80"
     volumes:
       - ./backend:/var/www
