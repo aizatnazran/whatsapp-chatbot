@@ -43,7 +43,7 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const updateAppointmentStatus = async (id: number, status: string) => {
+  const updateAppointmentStatus = async () => {
     try {
       const updatedAppointments = await getAppointments();
       setAppointments(updatedAppointments);

@@ -62,9 +62,9 @@ const AppointmentsList: React.FC<{
 
   useEffect(() => {
     getAppointments();
-  }, []);
+  }, [getAppointments]);
 
-  const handleStatusChange = async () => {
+  const handleStatusChange = async () {
 
     if (!selectedAppointment || !newStatus) {
       console.error('No appointment or status selected');
