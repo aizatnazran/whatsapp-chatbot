@@ -15,8 +15,7 @@ A WhatsApp chatbot application built with Laravel, Next.js, and MySQL for bookin
 ```
 whatsapp-chatbot/
 ├── backend/           # Laravel backend application
-├── frontend/         # Next.js frontend application
-└── database/         # Database schema and migrations
+└── frontend/         # Next.js frontend application
 ```
 
 ## Setup Instructions
@@ -67,14 +66,14 @@ whatsapp-chatbot/
 
 3. Copy .env.example to .env.local and configure:
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env
    ```
 
 ## Database Setup and Management
 
 To set up and manage the database, follow these steps:
 
-1. First, ensure your database configuration is correct in `.env`:
+1. First, ensure your database configuration is correct in `backend/.env`:
    ```env
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
