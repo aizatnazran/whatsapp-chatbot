@@ -70,6 +70,42 @@ whatsapp-chatbot/
    cp .env.example .env.local
    ```
 
+## Database Setup and Management
+
+To set up and manage the database, follow these steps:
+
+1. First, ensure your database configuration is correct in `.env`:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=your_database_name
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+   ```
+
+2. Reset and set up the database (this will delete all existing data):
+   ```bash
+   cd backend
+   php artisan migrate:fresh   
+   php artisan db:seed        
+   ```
+
+3. Other useful database commands:
+   ```bash
+   # View migration status
+   php artisan migrate:status
+
+   # Roll back all migrations
+   php artisan migrate:reset
+
+   # Roll back and re-run migrations
+   php artisan migrate:refresh
+
+   # Only run seeders
+   php artisan db:seed
+   ```
+
 ## Running the Application
 
 ### Backend
