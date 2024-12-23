@@ -135,10 +135,6 @@ The application uses MySQL with the following main tables:
 - appointments: Stores appointment details
 - chat_sessions: Tracks ongoing chat sessions
 
-## API Documentation
-
-The backend API endpoints are documented in the backend/README.md file.
-
 ## Testing
 
 Run backend tests:
