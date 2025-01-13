@@ -2,6 +2,8 @@
 
 A WhatsApp chatbot application built with Laravel, Next.js, and MySQL for booking appointments and collecting user information.
 
+![booking](booking.png)
+
 ## Prerequisites
 
 - PHP 8.1 or higher
